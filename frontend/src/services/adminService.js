@@ -1,91 +1,44 @@
-import axios from "axios";
-import AuthService from "./auth.service";
-import API_BASE_URL from "./auth.config";
+import axios from 'axios';
+import AuthService from './AuthService';
 
-const getAllTransactions = (pagenumber, pageSize, searchKey) => {
-    return axios.get(
-        API_BASE_URL + "/transaction/getAll",
-        {
-            headers: AuthService.authHeader(),
-            params: {
-                pageNumber: pagenumber,
-                pageSize: pageSize,
-                searchKey: searchKey
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL; // Ensure the API base URL is configured
+
+/**
+ * Sends a POST request to the backend API to create a new category with the specified details.
+ * @param {string} categoryName - The name of the category to be created.
+ * @param {number} transactionTypeId - The ID of the transaction type associated with the category.
+ * @returns {Promise} - Returns the response from the API or throws an error with a message.
+ */
+const createCategory = async (categoryName, transactionTypeId) => {
+    try {
+        const response = await axios.post(
+            `${API_BASE_URL}/category/create`,
+            {
+                categoryName,
+                transactionTypeId
+            },
+            {
+                headers: AuthService.authHeader()
             }
+        );
+        return response.data; // Return the data from the response
+    } catch (error) {
+        // Error handling to return a user-friendly error message
+        if (error.response) {
+            throw new Error(`Error: ${error.response.data.message || error.message}`);
+        } else if (error.request) {
+            throw new Error('Error: No response was received from the server.');
+        } else {
+            throw new Error(`Error: ${error.message}`);
         }
-    )
-}
+    }
+};
 
-const getAllUsers = (pagenumber, pageSize, searchKey) => {
-    return axios.get(
-        API_BASE_URL + "/user/getAll",
-        {
-            headers: AuthService.authHeader(),
-            params: {
-                pageNumber: pagenumber,
-                pageSize: pageSize,
-                searchKey: searchKey
-            }
-        }
-    )
-}
+/**
+ * Other service functions can be added here
+ */
 
-const disableOrEnableUser = (userId) => {
-    return axios.delete(
-        API_BASE_URL + "/user/disable",
-        {
-            headers: AuthService.authHeader(),
-            params: {
-                userId: userId
-            }
-        }
-    )
-}
-
-const getAllcategories = () => {
-    return axios.get(
-        API_BASE_URL + '/category/getAll', 
-        {
-            headers: AuthService.authHeader()
-        }
-    )
-}
-
-const updatecategory = (categoryId, categoryName, transactionTypeId) => {
-    return axios.put(
-        API_BASE_URL + '/category/update', 
-        {
-            categoryName: categoryName,
-            transactionTypeId: transactionTypeId
-        },
-        {
-            headers: AuthService.authHeader(),
-            params: {
-                categoryId: categoryId
-            }
-        }
-    )
-}
-
-const disableOrEnableCategory = (categoryId) => {
-    return axios.delete(
-        API_BASE_URL + "/category/delete",
-        {
-            headers: AuthService.authHeader(),
-            params: {
-                categoryId: categoryId
-            }
-        }
-    )
-}
-
-const AdminService = {
-    getAllTransactions,
-    getAllUsers,
-    disableOrEnableUser,
-    getAllcategories,
-    updatecategory,
-    disableOrEnableCategory,
-}
-
-export default AdminService;
+export default {
+    createCategory,
+    // other exported functions like updatecategory, disableOrEnableCategory, get_categories, etc.
+};
